@@ -139,17 +139,13 @@ export default function App() {
   }, [activeTab]);
 
   const [formLeadType, setFormLeadType] = useState('Compraventa de Negocios');
-  const [formSector, setFormSector] = useState('');
-  const [formLocation, setFormLocation] = useState('');
 
   // ===== Actions =====
   const handleLaunchTargetedSearch = async () => {
     setIsScanning(true);
     try {
-      // Build an array of keywords based on the form
-      const keywords = [formLeadType];
-      if (formSector) keywords.push(`Sector ${formSector}`);
-      if (formLocation) keywords.push(formLocation);
+      // Build an array of keywords based on the form, hardcoding Spain
+      const keywords = [formLeadType, 'España'];
 
       // We use triggerScan passing these keywords so the radars use them
       const result = await api.triggerScan(
@@ -330,10 +326,10 @@ export default function App() {
               <div className="relative z-10">
                 <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
                   <Zap className="w-5 h-5 text-emerald-400" />
-                  Iniciar Búsqueda Avanzada de Leads
+                  Iniciar Rastreo de Leads (España)
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="mb-8 max-w-md">
                   {/* Lead Type */}
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">Tipo de Transacción</label>
@@ -341,41 +337,14 @@ export default function App() {
                       <select
                         value={formLeadType}
                         onChange={(e) => setFormLeadType(e.target.value)}
-                        className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 pl-4 pr-10 text-slate-100 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
+                        className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-4 pl-4 pr-10 text-slate-100 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow text-lg"
                       >
                         <option value="Compraventa de Negocios">Compraventa de Negocios</option>
                         <option value="Transacciones Inmobiliarias">Transacciones Inmobiliarias</option>
                         <option value="Compraventa de Maquinaria">Compraventa de Maquinaria</option>
                         <option value="Conflictos por Herencia">Conflictos por Herencia</option>
                       </select>
-                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                  </div>
-
-                  {/* Sector */}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Sector Objetivo</label>
-                    <input
-                      type="text"
-                      value={formSector}
-                      onChange={(e) => setFormSector(e.target.value)}
-                      placeholder="Ej. Industrial, Servicios..."
-                      className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
-                    />
-                  </div>
-
-                  {/* Location */}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Ubicación</label>
-                    <div className="relative">
-                      <MapPin className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        value={formLocation}
-                        onChange={(e) => setFormLocation(e.target.value)}
-                        placeholder="Ej. Provincia de Barcelona"
-                        className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
-                      />
+                      <ChevronDown className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
                 </div>
@@ -390,8 +359,8 @@ export default function App() {
                           key={radar}
                           onClick={() => toggleRadarFilter(radar)}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${scanFilter.length === 0 || scanFilter.includes(radar)
-                              ? 'bg-slate-700 border-slate-600 text-white'
-                              : 'bg-slate-800/50 border-slate-700 text-slate-500 hover:text-slate-300'
+                            ? 'bg-slate-700 border-slate-600 text-white'
+                            : 'bg-slate-800/50 border-slate-700 text-slate-500 hover:text-slate-300'
                             }`}
                         >
                           {RADAR_CONFIG[radar].icon}
