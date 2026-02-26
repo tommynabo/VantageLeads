@@ -10,7 +10,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
     if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(err.error || `HTTP ${res.status}`);
+        throw new Error(err.details || err.error || `HTTP ${res.status}`);
     }
 
     return res.json();

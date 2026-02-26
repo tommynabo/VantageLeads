@@ -21,6 +21,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ results, total: results.length });
     } catch (error) {
         console.error('Search error:', error);
-        return res.status(500).json({ error: 'Error searching signals' });
+        return res.status(500).json({ error: 'Error searching signals', details: error instanceof Error ? error.message : String(error) });
     }
 }

@@ -33,6 +33,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
     } catch (error) {
         console.error('Regenerate error:', error);
-        return res.status(500).json({ error: 'Error regenerating message' });
+        return res.status(500).json({ error: 'Error regenerating message', details: error instanceof Error ? error.message : String(error) });
     }
 }

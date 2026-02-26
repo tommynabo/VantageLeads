@@ -51,6 +51,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ success: true, signal: updated });
     } catch (error) {
         console.error('Analyze error:', error);
-        return res.status(500).json({ error: 'Error analyzing signal' });
+        return res.status(500).json({ error: 'Error analyzing signal', details: error instanceof Error ? error.message : String(error) });
     }
 }

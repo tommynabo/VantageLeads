@@ -14,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json(settings);
         } catch (error) {
             console.error('Settings GET error:', error);
-            return res.status(500).json({ error: 'Error fetching settings' });
+            return res.status(500).json({ error: 'Error fetching settings', details: error instanceof Error ? error.message : String(error) });
         }
     }
 
@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({ success: true, settings: updated });
         } catch (error) {
             console.error('Settings POST error:', error);
-            return res.status(500).json({ error: 'Error updating settings' });
+            return res.status(500).json({ error: 'Error updating settings', details: error instanceof Error ? error.message : String(error) });
         }
     }
 

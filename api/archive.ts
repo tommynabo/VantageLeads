@@ -14,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({ signals: archived, total: archived.length });
         } catch (error) {
             console.error('Archive list error:', error);
-            return res.status(500).json({ error: 'Error fetching archive' });
+            return res.status(500).json({ error: 'Error fetching archive', details: error instanceof Error ? error.message : String(error) });
         }
     }
 
@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({ success: true, signal: archived });
         } catch (error) {
             console.error('Archive error:', error);
-            return res.status(500).json({ error: 'Error archiving signal' });
+            return res.status(500).json({ error: 'Error archiving signal', details: error instanceof Error ? error.message : String(error) });
         }
     }
 
