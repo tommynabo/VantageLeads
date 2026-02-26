@@ -138,15 +138,25 @@ export default function App() {
     if (activeTab === 'leads') loadSignals();
   }, [activeTab]);
 
+  const [formLeadType, setFormLeadType] = useState('Compraventa de Negocios');
+  const [formSector, setFormSector] = useState('');
+  const [formLocation, setFormLocation] = useState('');
+
   // ===== Actions =====
-  const handleScan = async () => {
+  const handleLaunchTargetedSearch = async () => {
     setIsScanning(true);
     try {
+      // Build an array of keywords based on the form
+      const keywords = [formLeadType];
+      if (formSector) keywords.push(`Sector ${formSector}`);
+      if (formLocation) keywords.push(formLocation);
+
+      // We use triggerScan passing these keywords so the radars use them
       const result = await api.triggerScan(
         scanFilter.length > 0 ? scanFilter : undefined,
-        searchQuery ? [searchQuery] : undefined
+        keywords
       );
-      showToast(`Scan completo: ${result.signalsFound} señales encontradas, ${result.signalsProcessed} procesadas por IA`, 'success');
+      showToast(`Búsqueda IA completada: ${result.signalsFound} señales encontradas`, 'success');
       await loadSignals();
       await loadStats();
       setShowScanOptions(false);
@@ -155,7 +165,7 @@ export default function App() {
         setActiveTab('leads');
       }
     } catch (err: any) {
-      showToast(`Error en el scan: ${err.message}`, 'error');
+      showToast(`Error en la búsqueda: ${err.message}`, 'error');
     } finally {
       setIsScanning(false);
     }
@@ -293,78 +303,124 @@ export default function App() {
       {activeTab === 'dashboard' && (
         <main className="flex-1 bg-white overflow-y-auto relative p-10">
           <div className="max-w-5xl mx-auto">
-            <header className="mb-10">
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">Dashboard Principal</h1>
-              <p className="text-slate-500">Radar de Inteligencia Competitiva — Detecta huellas digitales de transición empresarial.</p>
+            <header className="mb-10 flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">Dashboard Principal</h1>
+                <p className="text-slate-500">Radar de Inteligencia Competitiva — Detecta huellas digitales de transición empresarial.</p>
+              </div>
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="Búsqueda rápida en BBDD..."
+                  className="w-64 bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                />
+              </div>
             </header>
 
-            {/* Search + Scan Section */}
-            <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200 mb-10">
-              <div className="flex gap-4">
-                <div className="flex-1 relative">
-                  <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    placeholder="Buscar empresas, sectores, nombres o triggers (ej. 'Relevo Generacional')..."
-                    className="w-full bg-white border border-slate-200 rounded-xl py-4 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all shadow-sm"
-                  />
-                </div>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowScanOptions(!showScanOptions)}
-                    className="bg-white border border-slate-200 text-slate-700 px-6 py-4 rounded-xl font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm cursor-pointer h-full"
-                  >
-                    <Filter className="w-5 h-5" />
-                    Radares
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                  {showScanOptions && (
-                    <div className="absolute top-full mt-2 right-0 bg-white border border-slate-200 rounded-xl shadow-lg p-4 z-20 w-64">
-                      <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Seleccionar Radares</p>
-                      {(Object.keys(RADAR_CONFIG) as RadarSource[]).map(radar => (
-                        <label key={radar} className="flex items-center gap-3 py-2 cursor-pointer hover:bg-slate-50 rounded-lg px-2">
-                          <input
-                            type="checkbox"
-                            checked={scanFilter.includes(radar)}
-                            onChange={() => toggleRadarFilter(radar)}
-                            className="rounded border-slate-300"
-                          />
-                          <span className={`flex items-center gap-2 text-sm font-medium ${RADAR_CONFIG[radar].color} px-2 py-0.5 rounded-md`}>
-                            {RADAR_CONFIG[radar].icon}
-                            {RADAR_CONFIG[radar].label}
-                          </span>
-                        </label>
-                      ))}
-                      <p className="text-xs text-slate-400 mt-2">Vacío = todos los radares activos</p>
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={handleSearch}
-                  disabled={isLoading}
-                  className="bg-white border border-slate-200 text-slate-700 px-6 py-4 rounded-xl font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
-                >
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-                  Buscar
-                </button>
-                <button
-                  onClick={handleScan}
-                  disabled={isScanning}
-                  className="bg-slate-900 text-white px-8 py-4 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-sm cursor-pointer flex items-center gap-2 disabled:opacity-50"
-                >
-                  {isScanning ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
-                  {isScanning ? 'Escaneando...' : 'Lanzar Scan'}
-                </button>
+            {/* Targeted Lead Generation Form */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-800 mb-10 text-white shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                <BrainCircuit className="w-48 h-48 text-white" />
               </div>
-              {isScanning && (
-                <div className="mt-4 flex items-center gap-3 text-sm text-slate-500">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Ejecutando radares y procesando señales con IA... Esto puede tardar 30-60 segundos.
+
+              <div className="relative z-10">
+                <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-emerald-400" />
+                  Iniciar Búsqueda Avanzada de Leads
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  {/* Lead Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Tipo de Transacción</label>
+                    <div className="relative">
+                      <select
+                        value={formLeadType}
+                        onChange={(e) => setFormLeadType(e.target.value)}
+                        className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 pl-4 pr-10 text-slate-100 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
+                      >
+                        <option value="Compraventa de Negocios">Compraventa de Negocios</option>
+                        <option value="Transacciones Inmobiliarias">Transacciones Inmobiliarias</option>
+                        <option value="Compraventa de Maquinaria">Compraventa de Maquinaria</option>
+                        <option value="Conflictos por Herencia">Conflictos por Herencia</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Sector */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Sector Objetivo</label>
+                    <input
+                      type="text"
+                      value={formSector}
+                      onChange={(e) => setFormSector(e.target.value)}
+                      placeholder="Ej. Industrial, Servicios..."
+                      className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
+                    />
+                  </div>
+
+                  {/* Location */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Ubicación</label>
+                    <div className="relative">
+                      <MapPin className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={formLocation}
+                        onChange={(e) => setFormLocation(e.target.value)}
+                        placeholder="Ej. Provincia de Barcelona"
+                        className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                <div className="flex items-center justify-between border-t border-slate-700 pt-6">
+                  {/* Radar Filter Selection */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-slate-400">Radares activos:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(Object.keys(RADAR_CONFIG) as RadarSource[]).map(radar => (
+                        <button
+                          key={radar}
+                          onClick={() => toggleRadarFilter(radar)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${scanFilter.length === 0 || scanFilter.includes(radar)
+                              ? 'bg-slate-700 border-slate-600 text-white'
+                              : 'bg-slate-800/50 border-slate-700 text-slate-500 hover:text-slate-300'
+                            }`}
+                        >
+                          {RADAR_CONFIG[radar].icon}
+                          {RADAR_CONFIG[radar].label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Launch Button */}
+                  <button
+                    onClick={handleLaunchTargetedSearch}
+                    disabled={isScanning}
+                    className="bg-emerald-500 text-slate-900 px-8 py-3.5 rounded-xl font-semibold hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] cursor-pointer flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isScanning ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Analizando la red...
+                      </>
+                    ) : (
+                      <>
+                        <Radar className="w-5 h-5" />
+                        Ejecutar Rastreo IA
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Quick Stats */}
