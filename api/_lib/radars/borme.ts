@@ -1,4 +1,4 @@
-import { RawSignal, RadarModule } from '../types';
+import { RawSignal, RadarModule } from '../types.js';
 
 /**
  * BORME Radar — Parses BOE.es for business dissolution/liquidation notices.

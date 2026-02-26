@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { RawSignal, ProcessedSignal, Temperature } from './types';
+import { RawSignal, ProcessedSignal, Temperature } from './types.js';
 
 function getClient(): OpenAI {
     const apiKey = process.env.OPENAI_API_KEY;

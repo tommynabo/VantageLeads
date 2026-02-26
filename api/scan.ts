@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { bormeRadar } from './_lib/radars/borme';
-import { traspasosRadar } from './_lib/radars/traspasos';
-import { inmobiliarioRadar } from './_lib/radars/inmobiliario';
-import { linkedinRadar } from './_lib/radars/linkedin';
-import { processRawSignal } from './_lib/gemini';
-import { addSignals, getSettings } from './_lib/store';
-import type { RadarSource, ScanRequest, ScanResponse, RawSignal } from './_lib/types';
+import { bormeRadar } from './_lib/radars/borme.js';
+import { traspasosRadar } from './_lib/radars/traspasos.js';
+import { inmobiliarioRadar } from './_lib/radars/inmobiliario.js';
+import { linkedinRadar } from './_lib/radars/linkedin.js';
+import { processRawSignal } from './_lib/gemini.js';
+import { addSignals, getSettings } from './_lib/store.js';
+import type { RadarSource, ScanRequest, ScanResponse, RawSignal } from './_lib/types.js';
 
 const RADARS = {
     borme: bormeRadar,

@@ -1,4 +1,4 @@
-import { RawSignal, RadarModule } from '../types';
+import { RawSignal, RadarModule } from '../types.js';
 
 /**
  * Traspasos Radar — Scrapes business transfer/sale portals.

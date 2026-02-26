@@ -1,5 +1,5 @@
-import { getDb, initializeDatabase } from './db';
-import { ProcessedSignal, DashboardStats, RadarSettings, SignalStatus } from './types';
+import { getDb, initializeDatabase } from './db.js';
+import { ProcessedSignal, DashboardStats, RadarSettings, SignalStatus } from './types.js';
 
 // ===== DB Initialization Guard =====
 let dbInitialized = false;

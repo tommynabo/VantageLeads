@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSignal, updateSignal } from './_lib/store';
-import { regenerateMessage } from './_lib/gemini';
+import { getSignal, updateSignal } from './_lib/store.js';
+import { regenerateMessage } from './_lib/gemini.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('Access-Control-Allow-Origin', '*');

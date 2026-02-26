@@ -1,4 +1,4 @@
-import { RawSignal, RadarModule } from '../types';
+import { RawSignal, RadarModule } from '../types.js';
 
 /**
  * Inmobiliario Radar — Tracks industrial property sales.

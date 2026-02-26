@@ -1,4 +1,4 @@
-import { RawSignal, RadarModule } from '../types';
+import { RawSignal, RadarModule } from '../types.js';
 
 /**
  * LinkedIn Intent Radar — Scans LinkedIn posts for intent keywords.
