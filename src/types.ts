@@ -46,3 +46,9 @@ export interface ScanResponse {
   signalsProcessed: number;
   signals: Signal[];
 }
+
+export interface ScanRequest {
+  radars?: RadarSource[];
+  keywords?: string[];
+  targetCount?: number;
+}

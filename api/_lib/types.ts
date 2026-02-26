@@ -45,6 +45,7 @@ export interface ProcessedSignal {
 export interface ScanRequest {
   radars?: RadarSource[];
   keywords?: string[];
+  targetCount?: number;
 }
 
 export interface ScanResponse {
@@ -88,5 +89,5 @@ export interface RadarSettings {
 
 // ===== Radar Module Interface =====
 export interface RadarModule {
-  scan(keywords?: string[]): Promise<RawSignal[]>;
+  scan(keywords?: string[], targetCount?: number): Promise<RawSignal[]>;
 }

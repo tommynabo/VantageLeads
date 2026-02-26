@@ -49,9 +49,12 @@ const SAMPLE_TRASPASOS_DATA: RawSignal[] = [
 ];
 
 export const traspasosRadar: RadarModule = {
-    async scan(keywords?: string[]): Promise<RawSignal[]> {
+    async scan(keywords?: string[], targetCount?: number): Promise<RawSignal[]> {
         // In production: scrape Milanuncios, Vibbo, etc. via Apify or Puppeteer
-        const results = [...SAMPLE_TRASPASOS_DATA];
+        let results = [...SAMPLE_TRASPASOS_DATA];
+        if (targetCount !== undefined && targetCount > 0) {
+            results = results.slice(0, targetCount);
+        }
 
         // For simulation purposes, we always return the curated data
         return results.map(r => ({ ...r, scrapedAt: new Date().toISOString() }));

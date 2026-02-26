@@ -34,14 +34,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ? body.radars.filter(r => settings[r]?.enabled !== false)
             : (Object.keys(RADARS) as RadarSource[]).filter(r => settings[r]?.enabled !== false);
 
+        let remainingTargetCount = body.targetCount;
+
         // Collect raw signals from all selected radars
         const allRawSignals: RawSignal[] = [];
         for (const radarName of radarsToScan) {
+            if (remainingTargetCount !== undefined && remainingTargetCount <= 0) {
+                break;
+            }
+
             const radar = RADARS[radarName];
             const keywords = body.keywords || settings[radarName]?.keywords || [];
             try {
-                const raw = await radar.scan(keywords);
+                const raw = await radar.scan(keywords, remainingTargetCount);
                 allRawSignals.push(...raw);
+
+                if (remainingTargetCount !== undefined) {
+                    remainingTargetCount -= raw.length;
+                }
             } catch (err) {
                 console.error(`Radar ${radarName} error:`, err);
             }

@@ -56,13 +56,16 @@ const SAMPLE_BORME_DATA: RawSignal[] = [
 ];
 
 export const bormeRadar: RadarModule = {
-    async scan(keywords?: string[]): Promise<RawSignal[]> {
+    async scan(keywords?: string[], targetCount?: number): Promise<RawSignal[]> {
         // In production: fetch from BOE.es XML API
         // const response = await fetch('https://www.boe.es/datosabiertos/api/borme/...');
 
         // For simulation purposes, we always return the realistic data 
         // regardless of the strict keywords, so the user can test the UI.
-        const results = [...SAMPLE_BORME_DATA];
+        let results = [...SAMPLE_BORME_DATA];
+        if (targetCount !== undefined && targetCount > 0) {
+            results = results.slice(0, targetCount);
+        }
 
         // Update scrapedAt to now
         return results.map(r => ({ ...r, scrapedAt: new Date().toISOString() }));

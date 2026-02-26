@@ -78,9 +78,12 @@ const SAMPLE_LINKEDIN_DATA: RawSignal[] = [
 ];
 
 export const linkedinRadar: RadarModule = {
-    async scan(keywords?: string[]): Promise<RawSignal[]> {
+    async scan(keywords?: string[], targetCount?: number): Promise<RawSignal[]> {
         // In production: use LinkedIn API or Apify LinkedIn scraper
-        const results = [...SAMPLE_LINKEDIN_DATA];
+        let results = [...SAMPLE_LINKEDIN_DATA];
+        if (targetCount !== undefined && targetCount > 0) {
+            results = results.slice(0, targetCount);
+        }
 
         // For simulation purposes, we always return the curated data
         return results.map(r => ({ ...r, scrapedAt: new Date().toISOString() }));

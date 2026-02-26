@@ -37,10 +37,16 @@ export async function fetchSignal(id: string): Promise<{ signal: Signal }> {
 
 // ===== Scan =====
 
-export async function triggerScan(radars?: RadarSource[], keywords?: string[]): Promise<ScanResponse> {
+export async function triggerScan(
+    radars?: RadarSource[],
+    keywords?: string[],
+    targetCount?: number,
+    signal?: AbortSignal
+): Promise<ScanResponse> {
     return request('/scan', {
         method: 'POST',
-        body: JSON.stringify({ radars, keywords }),
+        body: JSON.stringify({ radars, keywords, targetCount }),
+        signal,
     });
 }
 
