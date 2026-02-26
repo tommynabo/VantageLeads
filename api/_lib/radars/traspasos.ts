@@ -51,19 +51,9 @@ const SAMPLE_TRASPASOS_DATA: RawSignal[] = [
 export const traspasosRadar: RadarModule = {
     async scan(keywords?: string[]): Promise<RawSignal[]> {
         // In production: scrape Milanuncios, Vibbo, etc. via Apify or Puppeteer
-        let results = [...SAMPLE_TRASPASOS_DATA];
+        const results = [...SAMPLE_TRASPASOS_DATA];
 
-        if (keywords && keywords.length > 0) {
-            const kws = keywords.map(k => k.toLowerCase());
-            results = results.filter(signal =>
-                kws.some(kw =>
-                    signal.trigger.toLowerCase().includes(kw) ||
-                    signal.fullSource.toLowerCase().includes(kw) ||
-                    signal.excerpt.toLowerCase().includes(kw)
-                )
-            );
-        }
-
+        // For simulation purposes, we always return the curated data
         return results.map(r => ({ ...r, scrapedAt: new Date().toISOString() }));
     }
 };

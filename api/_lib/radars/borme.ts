@@ -59,21 +59,10 @@ export const bormeRadar: RadarModule = {
     async scan(keywords?: string[]): Promise<RawSignal[]> {
         // In production: fetch from BOE.es XML API
         // const response = await fetch('https://www.boe.es/datosabiertos/api/borme/...');
-        // For now, return curated realistic data
 
-        let results = [...SAMPLE_BORME_DATA];
-
-        // Filter by keywords if provided
-        if (keywords && keywords.length > 0) {
-            const kws = keywords.map(k => k.toLowerCase());
-            results = results.filter(signal =>
-                kws.some(kw =>
-                    signal.trigger.toLowerCase().includes(kw) ||
-                    signal.fullSource.toLowerCase().includes(kw) ||
-                    signal.excerpt.toLowerCase().includes(kw)
-                )
-            );
-        }
+        // For simulation purposes, we always return the realistic data 
+        // regardless of the strict keywords, so the user can test the UI.
+        const results = [...SAMPLE_BORME_DATA];
 
         // Update scrapedAt to now
         return results.map(r => ({ ...r, scrapedAt: new Date().toISOString() }));

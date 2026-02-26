@@ -53,19 +53,9 @@ const SAMPLE_INMOBILIARIO_DATA: RawSignal[] = [
 export const inmobiliarioRadar: RadarModule = {
     async scan(keywords?: string[]): Promise<RawSignal[]> {
         // In production: scrape Idealista, BOE subastas, etc.
-        let results = [...SAMPLE_INMOBILIARIO_DATA];
+        const results = [...SAMPLE_INMOBILIARIO_DATA];
 
-        if (keywords && keywords.length > 0) {
-            const kws = keywords.map(k => k.toLowerCase());
-            results = results.filter(signal =>
-                kws.some(kw =>
-                    signal.trigger.toLowerCase().includes(kw) ||
-                    signal.fullSource.toLowerCase().includes(kw) ||
-                    signal.excerpt.toLowerCase().includes(kw)
-                )
-            );
-        }
-
+        // For simulation purposes, we always return the curated data
         return results.map(r => ({ ...r, scrapedAt: new Date().toISOString() }));
     }
 };
