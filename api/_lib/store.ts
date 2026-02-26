@@ -6,7 +6,9 @@ let dbInitialized = false;
 
 export async function ensureDb(): Promise<void> {
     if (!dbInitialized) {
-        await initializeDatabase();
+        if (getDb()) {
+            await initializeDatabase();
+        }
         dbInitialized = true;
     }
 }
@@ -20,6 +22,7 @@ export async function getSignals(filters?: {
 }): Promise<ProcessedSignal[]> {
     await ensureDb();
     const sql = getDb();
+    if (!sql) return []; // Fallback
 
     let rows;
     if (filters?.source && filters?.temperature && filters?.status) {
@@ -46,6 +49,8 @@ export async function getSignals(filters?: {
 export async function getArchivedSignals(): Promise<ProcessedSignal[]> {
     await ensureDb();
     const sql = getDb();
+    if (!sql) return []; // Fallback
+
     const rows = await sql`
     SELECT * FROM signals WHERE status = 'archived' ORDER BY archived_at DESC
   `;
@@ -55,6 +60,8 @@ export async function getArchivedSignals(): Promise<ProcessedSignal[]> {
 export async function getSignal(id: string): Promise<ProcessedSignal | undefined> {
     await ensureDb();
     const sql = getDb();
+    if (!sql) return undefined; // Fallback
+
     const rows = await sql`SELECT * FROM signals WHERE id = ${id}`;
     if (rows.length === 0) return undefined;
     return rowToSignal(rows[0]);
@@ -63,6 +70,7 @@ export async function getSignal(id: string): Promise<ProcessedSignal | undefined
 export async function addSignals(signals: ProcessedSignal[]): Promise<void> {
     await ensureDb();
     const sql = getDb();
+    if (!sql) return; // Fallback
 
     for (const s of signals) {
         await sql`
@@ -76,6 +84,7 @@ export async function addSignals(signals: ProcessedSignal[]): Promise<void> {
 export async function updateSignal(id: string, updates: Partial<ProcessedSignal>): Promise<ProcessedSignal | undefined> {
     await ensureDb();
     const sql = getDb();
+    if (!sql) return undefined; // Fallback
 
     // Build dynamic update
     if (updates.draftMessage !== undefined) {
@@ -100,6 +109,8 @@ export async function updateSignal(id: string, updates: Partial<ProcessedSignal>
 export async function archiveSignal(id: string): Promise<ProcessedSignal | undefined> {
     await ensureDb();
     const sql = getDb();
+    if (!sql) return undefined; // Fallback
+
     const now = new Date().toISOString();
     await sql`
     UPDATE signals SET status = 'archived', archived_at = ${now} WHERE id = ${id}
@@ -110,6 +121,8 @@ export async function archiveSignal(id: string): Promise<ProcessedSignal | undef
 export async function searchSignals(query: string): Promise<ProcessedSignal[]> {
     await ensureDb();
     const sql = getDb();
+    if (!sql) return []; // Fallback
+
     const pattern = `%${query}%`;
 
     const rows = await sql`
@@ -138,6 +151,18 @@ export async function searchSignals(query: string): Promise<ProcessedSignal[]> {
 export async function getStats(): Promise<DashboardStats> {
     await ensureDb();
     const sql = getDb();
+
+    // Fallback if no database
+    if (!sql) {
+        return {
+            totalLeads: 0,
+            highTicket: 0,
+            newToday: 0,
+            bySource: { borme: 0, traspasos: 0, inmobiliario: 0, linkedin: 0 },
+            byTemperature: { Alto: 0, Medio: 0, Bajo: 0 },
+            recentSearches: [],
+        };
+    }
 
     const activeRows = await sql`SELECT * FROM signals WHERE status != 'archived'`;
     const today = new Date();
@@ -179,6 +204,7 @@ export async function getStats(): Promise<DashboardStats> {
 export async function getSettings(): Promise<RadarSettings> {
     await ensureDb();
     const sql = getDb();
+    if (!sql) return getDefaultSettings(); // Fallback
 
     const rows = await sql`SELECT value FROM settings WHERE key = 'radar_config'`;
     if (rows.length === 0) {
@@ -193,6 +219,8 @@ export async function updateSettings(newSettings: Partial<RadarSettings>): Promi
 
     const current = await getSettings();
     const merged = { ...current, ...newSettings };
+
+    if (!sql) return merged; // Fallback
 
     await sql`
     INSERT INTO settings (key, value, updated_at)

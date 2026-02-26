@@ -1,23 +1,25 @@
 import { neon } from '@neondatabase/serverless';
 
-function getDbUrl(): string {
-    const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-    if (!url) {
-        throw new Error('DATABASE_URL environment variable is not set. Please provision a Neon Postgres database from the Vercel Storage tab.');
-    }
-    return url;
+function getDbUrl(): string | null {
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  if (!url) {
+    return null;
+  }
+  return url;
 }
 
 export function getDb() {
-    return neon(getDbUrl());
+  const url = getDbUrl();
+  if (!url) return null;
+  return neon(url);
 }
 
 // ===== Schema Initialization =====
 export async function initializeDatabase(): Promise<void> {
-    const sql = getDb();
+  const sql = getDb();
 
-    // Signals table
-    await sql`
+  // Signals table
+  await sql`
     CREATE TABLE IF NOT EXISTS signals (
       id TEXT PRIMARY KEY,
       source TEXT NOT NULL,
@@ -39,8 +41,8 @@ export async function initializeDatabase(): Promise<void> {
     )
   `;
 
-    // Search history table
-    await sql`
+  // Search history table
+  await sql`
     CREATE TABLE IF NOT EXISTS search_history (
       id SERIAL PRIMARY KEY,
       query TEXT NOT NULL,
@@ -49,8 +51,8 @@ export async function initializeDatabase(): Promise<void> {
     )
   `;
 
-    // Settings table
-    await sql`
+  // Settings table
+  await sql`
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
       value JSONB NOT NULL,
@@ -58,27 +60,27 @@ export async function initializeDatabase(): Promise<void> {
     )
   `;
 
-    // Insert default settings if not exists
-    await sql`
+  // Insert default settings if not exists
+  await sql`
     INSERT INTO settings (key, value)
     VALUES ('radar_config', ${JSON.stringify({
-        borme: {
-            enabled: true,
-            keywords: ['disolución', 'concurso de acreedores', 'liquidación', 'cese de actividad', 'quiebra']
-        },
-        traspasos: {
-            enabled: true,
-            keywords: ['traspaso por jubilación', 'venta de negocio', 'cierre por jubilación', 'venta de lote industrial', 'traspaso urgente']
-        },
-        inmobiliario: {
-            enabled: true,
-            keywords: ['nave industrial en venta', 'polígono industrial', 'venta urgente nave', 'liquidación industrial', 'subasta nave']
-        },
-        linkedin: {
-            enabled: true,
-            keywords: ['relevo generacional', 'cierre de etapa', 'conflicto societario', 'venta empresa', 'jubilación empresario', 'sucesión empresarial']
-        }
-    })}::jsonb)
+    borme: {
+      enabled: true,
+      keywords: ['disolución', 'concurso de acreedores', 'liquidación', 'cese de actividad', 'quiebra']
+    },
+    traspasos: {
+      enabled: true,
+      keywords: ['traspaso por jubilación', 'venta de negocio', 'cierre por jubilación', 'venta de lote industrial', 'traspaso urgente']
+    },
+    inmobiliario: {
+      enabled: true,
+      keywords: ['nave industrial en venta', 'polígono industrial', 'venta urgente nave', 'liquidación industrial', 'subasta nave']
+    },
+    linkedin: {
+      enabled: true,
+      keywords: ['relevo generacional', 'cierre de etapa', 'conflicto societario', 'venta empresa', 'jubilación empresario', 'sucesión empresarial']
+    }
+  })}::jsonb)
     ON CONFLICT (key) DO NOTHING
   `;
 }
