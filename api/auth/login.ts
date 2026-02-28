@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { getDb } from '../_lib/db.js';
+import { ensureDb } from '../_lib/store.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS configuration
@@ -26,6 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'Email and password are required' });
         }
 
+        await ensureDb();
         const sql = getDb();
         if (!sql) {
             throw new Error('Database not configured');
