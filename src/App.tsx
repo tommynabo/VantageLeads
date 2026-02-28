@@ -156,7 +156,7 @@ export default function App() {
     }
   }, [isAuthenticated]);
 
-  const [formLeadType, setFormLeadType] = useState('BORME Intel');
+  const [formLeadType, setFormLeadType] = useState('borme');
   const [targetCount, setTargetCount] = useState<number>(3);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -181,12 +181,14 @@ export default function App() {
     setIsScanning(true);
     abortControllerRef.current = new AbortController();
     try {
-      // Build an array of keywords based on the form, hardcoding Spain
-      const keywords = [formLeadType, 'España'];
+      // The form dropdown itself is selecting a specific radar
+      const targetRadars = scanFilter.length > 0 ? scanFilter : [(formLeadType as RadarSource)];
+      // Keywords are left to either settings or a specific input if we had one
+      const keywords = ['España'];
 
-      // We use triggerScan passing these keywords so the radars use them
+      // We use triggerScan passing these explicitly
       const result = await api.triggerScan(
-        scanFilter.length > 0 ? scanFilter : undefined,
+        targetRadars,
         keywords,
         targetCount,
         abortControllerRef.current.signal
@@ -402,10 +404,10 @@ export default function App() {
                                 onChange={(e) => setFormLeadType(e.target.value)}
                                 className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-4 pl-4 pr-10 text-slate-100 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow text-lg"
                               >
-                                <option value="BORME Intel">BORME Intel</option>
-                                <option value="Mercado de Traspasos">Mercado de Traspasos</option>
-                                <option value="Activos Industriales">Activos Industriales</option>
-                                <option value="LinkedIn Radar">LinkedIn Radar</option>
+                                <option value="borme">BORME Intel</option>
+                                <option value="traspasos">Mercado de Traspasos</option>
+                                <option value="inmobiliario">Activos Industriales</option>
+                                <option value="linkedin">LinkedIn Radar</option>
                               </select>
                               <ChevronDown className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                             </div>
