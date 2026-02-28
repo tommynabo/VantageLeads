@@ -156,7 +156,7 @@ export default function App() {
     }
   }, [isAuthenticated]);
 
-  const [formLeadType, setFormLeadType] = useState('Compraventa de Negocios');
+  const [formLeadType, setFormLeadType] = useState('BORME Intel');
   const [targetCount, setTargetCount] = useState<number>(3);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -402,10 +402,10 @@ export default function App() {
                                 onChange={(e) => setFormLeadType(e.target.value)}
                                 className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-4 pl-4 pr-10 text-slate-100 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow text-lg"
                               >
-                                <option value="Compraventa de Negocios">Compraventa de Negocios</option>
-                                <option value="Transacciones Inmobiliarias">Transacciones Inmobiliarias</option>
-                                <option value="Compraventa de Maquinaria">Compraventa de Maquinaria</option>
-                                <option value="Conflictos por Herencia">Conflictos por Herencia</option>
+                                <option value="BORME Intel">BORME Intel</option>
+                                <option value="Mercado de Traspasos">Mercado de Traspasos</option>
+                                <option value="Activos Industriales">Activos Industriales</option>
+                                <option value="LinkedIn Radar">LinkedIn Radar</option>
                               </select>
                               <ChevronDown className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                             </div>
