@@ -169,7 +169,12 @@ export async function getStats(): Promise<DashboardStats> {
     today.setHours(0, 0, 0, 0);
 
     const active = activeRows.map(rowToSignal);
-    const newToday = active.filter(s => new Date(s.createdAt) >= today).length;
+
+    // Get strictly today's scraped count from daily_usage
+    const usageRows = await sql`
+      SELECT scraped_count FROM daily_usage WHERE date = CURRENT_DATE
+    `;
+    const newToday = usageRows.length > 0 ? usageRows[0].scraped_count : 0;
 
     // Get recent searches
     const searchRows = await sql`
@@ -264,4 +269,31 @@ function rowToSignal(row: Record<string, unknown>): ProcessedSignal {
         createdAt: (row.created_at as Date)?.toISOString?.() || row.created_at as string,
         archivedAt: row.archived_at ? (row.archived_at as Date)?.toISOString?.() || row.archived_at as string : undefined,
     };
+}
+
+// ===== Usage tracking =====
+export async function incrementDailyScrapes(count: number): Promise<void> {
+    await ensureDb();
+    const sql = getDb();
+    if (!sql) return;
+
+    await sql`
+      INSERT INTO daily_usage (date, scraped_count) 
+      VALUES (CURRENT_DATE, ${count}) 
+      ON CONFLICT (date) DO UPDATE 
+      SET scraped_count = daily_usage.scraped_count + ${count}
+    `;
+}
+
+export async function resetDailyScrapes(): Promise<void> {
+    await ensureDb();
+    const sql = getDb();
+    if (!sql) return;
+
+    await sql`
+      INSERT INTO daily_usage (date, scraped_count) 
+      VALUES (CURRENT_DATE, 0) 
+      ON CONFLICT (date) DO UPDATE 
+      SET scraped_count = 0
+    `;
 }

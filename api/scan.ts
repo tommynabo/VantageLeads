@@ -4,7 +4,7 @@ import { traspasosRadar } from './_lib/radars/traspasos.js';
 import { inmobiliarioRadar } from './_lib/radars/inmobiliario.js';
 import { linkedinRadar } from './_lib/radars/linkedin.js';
 import { processRawSignal } from './_lib/gemini.js';
-import { addSignals, getSettings } from './_lib/store.js';
+import { addSignals, getSettings, incrementDailyScrapes } from './_lib/store.js';
 import type { RadarSource, ScanRequest, ScanResponse, RawSignal } from './_lib/types.js';
 
 const RADARS = {
@@ -71,9 +71,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         }
 
-        // Store the processed signals
+        // Store the processed signals and record usage
         if (processedSignals.length > 0) {
             await addSignals(processedSignals);
+            await incrementDailyScrapes(processedSignals.length);
         }
 
         const response: ScanResponse = {

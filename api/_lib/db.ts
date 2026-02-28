@@ -58,6 +58,14 @@ export async function initializeDatabase(): Promise<void> {
     ON CONFLICT (email) DO NOTHING
   `;
 
+  // Track daily AI/Scrape request usage
+  await sql`
+    CREATE TABLE IF NOT EXISTS daily_usage (
+      date DATE PRIMARY KEY,
+      scraped_count INTEGER DEFAULT 0
+    )
+  `;
+
   // Search history table
   await sql`
     CREATE TABLE IF NOT EXISTS search_history (
