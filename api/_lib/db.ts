@@ -41,6 +41,23 @@ export async function initializeDatabase(): Promise<void> {
     )
   `;
 
+  // Users table
+  await sql`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // Insert a default admin user if none exists
+  await sql`
+    INSERT INTO users (email, password)
+    VALUES ('admin@vantageleads.com', 'admin123')
+    ON CONFLICT (email) DO NOTHING
+  `;
+
   // Search history table
   await sql`
     CREATE TABLE IF NOT EXISTS search_history (
